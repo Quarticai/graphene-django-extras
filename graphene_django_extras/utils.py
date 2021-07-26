@@ -218,52 +218,49 @@ def is_required(field):
     return not blank and default == NOT_PROVIDED
 
 
-def _get_queryset(klass, info=None, resolve_queryset=None, **kwargs):
+def _get_queryset(klass, info=None,type=None,resolve_queryset=None, **kwargs):
     """
     Returns a QuerySet from a Model, Manager, or QuerySet. Created to make
     get_object_or_404 and get_list_or_404 more DRY.
 
     Raises a ValueError if klass is not a Model, Manager, or QuerySet.
     """
-    # if isinstance(klass, QuerySet):
-    #     return klass
-    manager = None
-    if isinstance(klass, Manager):
-        manager = klass
-    elif isinstance(klass, ModelBase):
-        manager = klass._default_manager
-    # else:
-    #     if isinstance(klass, type):
-    #         klass__name = klass.__name__
-    #     else:
-    #         klass__name = klass.__class__.__name__
-    #     raise ValueError(
-    #         "Object is of type '{}', but must be a Django Model, "
-    #         "Manager, or QuerySet".format(klass__name)
-    #     )
-    if manager:
-        print(f'test={resolve_queryset}')
-        print(f'type={type(resolve_queryset)}')
-        value = resolve_queryset["func_name"]
-        print(f'svfv = { value }')
-        print('1234567890-')
-        if hasattr(manager.model, resolve_queryset['func_name']):
-            _method = getattr(manager.model, resolve_queryset['func_name'])(info.context.user, kwargs)
-            print(_method)
-            return _method
+    if type:
+        if isinstance(klass, QuerySet):
+            return klass
+        elif isinstance(klass, Manager):
+            manager = klass
+        elif isinstance(klass, ModelBase):
+            manager = klass._default_manager
         else:
+            if isinstance(klass, type):
+                klass__name = klass.__name__
+            else:
+                klass__name = klass.__class__.__name__
             raise ValueError(
-                    f"Model does not contain resolve queryset method, class = {klass} "
-                    f"and manager = {manager}"
+                "Object is of type '{}', but must be a Django Model, "
+                "Manager, or QuerySet".format(klass__name)
             )
+        return manager.all()
     else:
-        raise ValueError(
-                f"No manager for class = {klass}"
-        )
-    # return manager.all()
+        manager = None
+        if isinstance(klass, Manager):
+            manager = klass
+        elif isinstance(klass, ModelBase):
+            manager = klass._default_manager
+        if manager:
+            print(f'test={resolve_queryset}')
+            print(f'type={type(resolve_queryset)}')
+            value = resolve_queryset["func_name"]
+            print(f'svfv = { value }')
+            print('1234567890-')
+            if hasattr(manager.model, resolve_queryset['func_name']):
+                _method = getattr(manager.model, resolve_queryset['func_name'])(info.context.user, kwargs)
+                print(_method)
+                return _method
 
 
-def get_Object_or_None(klass, *args, **kwargs):
+def get_Object_or_None(klass,info=None,type=None, *args, **kwargs):
     """
     Uses get() to return an object, or None if the object does not exist.
 
@@ -274,7 +271,7 @@ def get_Object_or_None(klass, *args, **kwargs):
     if more than one object is found.
     Ex: get_Object_or_None(User, db, id=1)
     """
-    queryset = _get_queryset(klass)
+    queryset = _get_queryset(klass,info,type)
     try:
         if args:
             return queryset.using(args[0]).get(**kwargs)
