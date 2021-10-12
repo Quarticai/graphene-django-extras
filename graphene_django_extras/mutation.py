@@ -80,11 +80,7 @@ class DjangoSerializerMutation(ObjectType):
                         "https://github.com/graphql-python/graphene/blob/2.0/UPGRADE-v2.0.md#mutation-input"
                     ).format(name=cls.__name__)
                 )
-        if input_class:
-            arguments = props(input_class)
-        else:
-            arguments = {}
-
+        arguments = props(input_class) if input_class else {}
         registry = get_global_registry()
 
         factory_kwargs = {
@@ -176,10 +172,8 @@ class DjangoSerializerMutation(ObjectType):
             for field in cls._meta.nested_fields:
                 sub_data = data.pop(field, None)
                 if sub_data:
-                    serialized_data = cls._meta.nested_fields[field](
-                        data=sub_data, many=True if type(
-                            sub_data) == list else False
-                    )
+                    serialized_data = cls._meta.nested_fields[field](data=sub_data, many=type(
+                            sub_data) == list)
                     ok, result = cls.save(serialized_data, root, info)
                     if not ok:
                         return cls.get_errors(result)
