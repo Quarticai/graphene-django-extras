@@ -1,3 +1,5 @@
+#!groovy
+
 @Library('shared-library') _
 import quarticpipeline.PipelineBuilder
 
@@ -7,8 +9,6 @@ containerNodes = [
       steps: [
         publish: [
           file_name: 'publish.sh',
-          docker_image: 'quarticai/python:3.9.5-slim',
-          docker_image_args: '-u root'
             ]
         ]
     ]
