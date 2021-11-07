@@ -83,11 +83,7 @@ class DjangoSerializerMutation(ObjectType):
                         "https://github.com/graphql-python/graphene/blob/2.0/UPGRADE-v2.0.md#mutation-input"
                     ).format(name=cls.__name__)
                 )
-        if input_class:
-            arguments = props(input_class)
-        else:
-            arguments = {}
-
+        arguments = props(input_class) if input_class else {}
         registry = get_global_registry()
 
         factory_kwargs = {
@@ -115,8 +111,7 @@ class DjangoSerializerMutation(ObjectType):
         global_arguments = {}
 
         for operation in ("create", "delete", "update"):
-            global_arguments.update({operation: OrderedDict()})
-
+            global_arguments[operation] = OrderedDict()
             if operation != "delete":
                 if operation == 'update':
                     input_field_name = f"update_{model.API_SCHEMA.graphql_schema[0].class_name_prefix or model._meta.model_name}"
@@ -188,15 +183,13 @@ class DjangoSerializerMutation(ObjectType):
             for field in cls._meta.nested_fields:
                 sub_data = data.pop(field, None)
                 if sub_data:
-                    serialized_data = cls._meta.nested_fields[field](
-                        data=sub_data, many=True if type(
-                            sub_data) == list else False
-                    )
+                    serialized_data = cls._meta.nested_fields[field](data=sub_data, many=type(
+                            sub_data) == list)
                     ok, result = cls.save(serialized_data, root, info)
                     if not ok:
                         return cls.get_errors(result)
                     if type(sub_data) == list:
-                        nested_objs.update({field: result})
+                        nested_objs[field] = result
                     else:
                         data.update({field: result.id})
         return nested_objs
@@ -262,12 +255,14 @@ class DjangoSerializerMutation(ObjectType):
     @classmethod
     def update(cls, root, info, **kwargs):
         data = kwargs.get(cls._meta.input_field_name['update'])
-        m2m_dict = {}
         m2m_fields = [
             field.attname for field in cls._meta.model._meta.local_many_to_many]
-        for m2m_field in m2m_fields:
-            if data.get(m2m_field):
-                m2m_dict[m2m_field] = data.pop(m2m_field)
+        m2m_dict = {
+            m2m_field: data.pop(m2m_field)
+            for m2m_field in m2m_fields
+            if data.get(m2m_field)
+        }
+
         request_type = info.context.META.get("CONTENT_TYPE", "")
         if "multipart/form-data" in request_type:
             data.update(
