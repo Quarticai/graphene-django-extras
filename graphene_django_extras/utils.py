@@ -113,11 +113,13 @@ def get_serializer_fields(extra_fields):
     }
     :return: List[Tuple] (SerializerExtraField, serializers.BooleanField(required: True))
     """
-    fields = [
-        (field, getattr(
-            serializers, field.serializer_field_name)(**field.kwargs)) for field in extra_fields
+    return [
+        (
+            field,
+            getattr(serializers, field.serializer_field_name)(**field.kwargs),
+        )
+        for field in extra_fields
     ]
-    return fields
 
 
 def get_obj(app_label, model_name, object_id):
@@ -287,12 +289,11 @@ def get_Object_or_None(klass, info=None, type=None, *args, **kwargs):
 
 
 def get_extra_filters(root, model):
-    extra_filters = {}
-    for field in model._meta.get_fields():
-        if field.is_relation and field.related_model == root._meta.model:
-            extra_filters.update({field.name: root})
-
-    return extra_filters
+    return {
+        field.name: root
+        for field in model._meta.get_fields()
+        if field.is_relation and field.related_model == root._meta.model
+    }
 
 
 def get_related_fields(model):
