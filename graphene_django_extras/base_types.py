@@ -15,7 +15,13 @@ import pytz
 def factory_type(operation, _type, *args, **kwargs):
     if operation == "output":
 
+
+
+
         class GenericType(_type):
+
+
+
             class Meta:
                 model = kwargs.get("model")
                 name = to_camel_case("{}_Generic_Type".format(
@@ -28,17 +34,23 @@ def factory_type(operation, _type, *args, **kwargs):
                 registry = kwargs.get("registry")
                 skip_registry = kwargs.get("skip_registry")
                 # fields = kwargs.get('fields')
-                description = "Auto generated Type for {} model".format(
-                    kwargs.get("model").__name__
-                )
+                description = f'Auto generated Type for {kwargs.get("model").__name__} model'
                 non_required_fields = kwargs.get("non_required_fields")
                 extra_fields = kwargs.get("extra_fields")
+
+
 
         return GenericType
 
     elif operation == "input":
 
+
+
+
         class GenericInputType(_type):
+
+
+
             class Meta:
                 model = kwargs.get("model")
                 name = to_camel_case(
@@ -51,22 +63,30 @@ def factory_type(operation, _type, *args, **kwargs):
                 registry = kwargs.get("registry")
                 skip_registry = kwargs.get("skip_registry")
                 input_for = args[0]
-                description = "Auto generated InputType for {} model".format(
-                    kwargs.get("model").__name__
-                )
+                description = f'Auto generated InputType for {kwargs.get("model").__name__} model'
+
                 non_required_fields = kwargs.get("non_required_fields")
                 extra_fields = kwargs.get("extra_fields")
+
+
 
         return GenericInputType
 
     elif operation == "list":
 
+
+
+
         class GenericListType(_type):
+
+
+
             class Meta:
                 model = kwargs.get("model")
                 name = kwargs.get("name") or to_camel_case(
-                    "{}_List_Type".format(kwargs.get("model").__name__)
+                    f'{kwargs.get("model").__name__}_List_Type'
                 )
+
                 only_fields = kwargs.get("only_fields")
                 exclude_fields = kwargs.get("exclude_fields")
                 filter_fields = kwargs.get("filter_fields")
@@ -75,9 +95,10 @@ def factory_type(operation, _type, *args, **kwargs):
                 pagination = kwargs.get("pagination")
                 queryset = kwargs.get("queryset")
                 registry = kwargs.get("registry")
-                description = "Auto generated list Type for {} model".format(
-                    kwargs.get("model").__name__
-                )
+                description = f'Auto generated list Type for {kwargs.get("model").__name__} model'
+
+
+
 
         return GenericListType
 
@@ -162,7 +183,8 @@ class CustomTime(Time):
 
         assert isinstance(
             time, datetime.time
-        ), 'Received not compatible time "{}"'.format(repr(time))
+        ), f'Received not compatible time "{repr(time)}"'
+
         return time.isoformat()
 
 
@@ -176,7 +198,8 @@ class CustomDate(Date):
             date = date.date()
         assert isinstance(
             date, datetime.date
-        ), 'Received not compatible date "{}"'.format(repr(date))
+        ), f'Received not compatible date "{repr(date)}"'
+
         return date.isoformat()
 
 
