@@ -65,8 +65,10 @@ class DjangoSerializerMutation(ObjectType):
         model = serializer_class.Meta.model
 
         description = description or f"SerializerMutation for {model.__name__} model"
-        input_field_name = input_field_name or "new_{}".format(
-            model.API_SCHEMA.graphql_schema[0].class_name_prefix or model._meta.model_name)
+        input_field_name = (
+            input_field_name
+            or f"new_{model.API_SCHEMA.graphql_schema[0].class_name_prefix or model._meta.model_name}"
+        )
         input_field_name_dict = {
             'create': input_field_name
         }
