@@ -4,6 +4,15 @@ from django_filters.filterset import FILTER_FOR_DBFIELD_DEFAULTS
 from graphene_django.filter.utils import replace_csv_filters
 
 
+class FormValidationFilterset(FilterSet):
+    def filter_queryset(self, queryset):
+        """
+        Override to return an empty queryset if any filter field value has an error.
+        """
+        if self.form.errors:
+            return queryset.none()
+        return super().filter_queryset(queryset=queryset)
+
 def get_filterset_class(filterset_class, **meta):
     """
     Get the class to be used as the FilterSet.
@@ -34,7 +43,7 @@ def setup_filterset(filterset_class):
     )
 
 
-def custom_filterset_factory(model, filterset_base_class=FilterSet, **meta):
+def custom_filterset_factory(model, filterset_base_class=FormValidationFilterset, **meta):
     """
         Create a filterset for the given model using the provided meta data
     """
