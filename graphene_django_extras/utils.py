@@ -392,6 +392,12 @@ def queryset_factory(manager, fields_asts=None, fragments=None, info=None, resol
 
     result = _get_queryset(manager, info, resolve_func, **kwargs)
 
+    ordering_param = kwargs.get('ordering')
+    if ordering_param and (
+        ordering_param.lstrip('-') in [field.name for field in manager.model._meta.fields]
+    ):
+        result = result.order_by(ordering_param)
+
     if select_related and prefetch_related:
 
         # return _get_queryset(
