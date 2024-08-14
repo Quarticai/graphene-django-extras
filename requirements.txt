@@ -1,4 +1,4 @@
---extra-index-url https://pypi.fury.io/cofDNgE692FsjZ5iiShW/quartic-ai/
+--extra-index-url https://pypi.fury.io/1v6J0V-faBVDVqUHnfmOqps3W5EF2BAXtg/quartic-ai/
 --find-links https://download.pytorch.org/whl/torch_stable.html
 
 appdirs==1.4.4
