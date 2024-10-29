@@ -17,6 +17,7 @@ from django.db.models import (
     ManyToManyRel,
 )
 from django.db.models.base import ModelBase
+from django.db.models.functions import Lower
 from graphene.utils.str_converters import to_snake_case
 from graphene_django.utils import is_valid_django_model
 from graphql import GraphQLList, GraphQLNonNull
@@ -392,11 +393,19 @@ def queryset_factory(manager, fields_asts=None, fragments=None, info=None, resol
 
     result = _get_queryset(manager, info, resolve_func, **kwargs)
 
+    # applying ordering if ordering param is provided
+    field_types = {field.name: field.get_internal_type() for field in manager.model._meta.fields}
     ordering_param = kwargs.get('ordering')
-    if ordering_param and (
-        ordering_param.lstrip('-') in [field.name for field in manager.model._meta.fields]
-    ):
-        result = result.order_by(ordering_param)
+    if ordering_param:
+        field_name = ordering_param.lstrip('-')
+        if field_name in field_types:
+            if field_types[field_name] == 'CharField':
+                if ordering_param.startswith('-'):
+                    result = result.order_by(Lower(field_name).desc())
+                else:
+                    result = result.order_by(Lower(field_name))
+            else:
+                result = result.order_by(ordering_param)
 
     if select_related and prefetch_related:
 
