@@ -110,14 +110,15 @@ class LimitOffsetGraphqlPagination(BaseDjangoGraphqlPagination):
         if limit is None:
             return qs
 
-        order = kwargs.pop(self.ordering_param, None) or self.ordering
-        if order:
-            if "," in order:
-                order = order.strip(",").replace(" ", "").split(",")
-                if order.__len__() > 0:
-                    qs = qs.order_by(*order)
-            else:
-                qs = qs.order_by(order)
+        # ordering already applied in the resolver
+        # order = kwargs.pop(self.ordering_param, None) or self.ordering
+        # if order:
+        #     if "," in order:
+        #         order = order.strip(",").replace(" ", "").split(",")
+        #         if order.__len__() > 0:
+        #             qs = qs.order_by(*order)
+        #     else:
+        #         qs = qs.order_by(order)
 
         offset = kwargs.get(self.offset_query_param, 0)
         if offset is None:
